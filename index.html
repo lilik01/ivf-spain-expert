@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IVF-Spain Expert Service</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+        :root { --ivf-navy: #002D45; --ivf-gold: #D4AF37; --ivf-green: #22c55e; }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; margin: 0; }
+        
+        .chat-container { 
+            height: 100vh; max-width: 500px; margin: 0 auto; 
+            display: flex; flex-direction: column; background: white; 
+            position: relative; box-shadow: 0 0 40px rgba(0,0,0,0.1);
+        }
+        @media (min-height: 600px) { .chat-container { height: calc(100vh - 40px); margin: 20px auto; border-radius: 20px; overflow: hidden; } }
+
+        .chat-header { 
+            background: var(--ivf-navy); padding: 16px 20px; color: white; 
+            border-bottom: 3px solid var(--ivf-gold); display: flex; 
+            align-items: center; justify-content: space-between; z-index: 10;
+        }
+        .header-content { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .logo-svg { width: 40px; height: 40px; flex-shrink: 0; }
+
+        .messages-area { 
+            flex: 1; padding: 20px; overflow-y: auto; 
+            display: flex; flex-direction: column; gap: 16px; 
+            background: #ffffff; scroll-behavior: smooth; 
+        }
+        .message { 
+            max-width: 85%; padding: 12px 16px; border-radius: 18px; 
+            font-size: 14px; line-height: 1.5; word-wrap: break-word; 
+            position: relative; scroll-margin-top: 80px;
+        }
+        .message-bot { background: #f1f5f9; color: #1e293b; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid #e2e8f0; }
+        .message-user { background: var(--ivf-navy); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        
+        .message a { color: #2563eb !important; text-decoration: underline !important; font-weight: 600; cursor: pointer; word-break: break-all; }
+        .message-user a { color: var(--ivf-gold) !important; }
+
+        /* Контейнер для видео в конце сообщения */
+        .video-attachments {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px dashed #cbd5e1;
+            width: 100%;
+        }
+
+        .yt-card { 
+            margin-bottom: 12px; border-radius: 12px; overflow: hidden; 
+            border: 1px solid #e2e8f0; cursor: pointer; background: #000; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .yt-thumb { 
+            width: 100%; aspect-ratio: 16/9; background-size: cover; 
+            background-position: center; display: flex; align-items: center; 
+            justify-content: center; position: relative;
+        }
+        .play-btn { width: 40px; height: 40px; background: rgba(255,0,0,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
+        .yt-label { padding: 6px 10px; background: #f8fafc; font-size: 10px; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 5px; }
+
+        #suggestions-container {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; 
+            margin-top: 4px; width: 100%; padding-bottom: 20px;
+        }
+        .suggestion-btn {
+            background: white; color: var(--ivf-navy); border: 1.5px solid var(--ivf-navy); 
+            padding: 8px 10px; border-radius: 10px; font-size: 11px; cursor: pointer; 
+            font-weight: 600; text-align: center; transition: 0.2s;
+        }
+        .suggestion-btn:hover { background: var(--ivf-gold); color: white; border-color: var(--ivf-gold); }
+
+        .lang-select { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 4px; font-size: 11px; font-weight: 600; cursor: pointer; }
+        .lang-select option { background: var(--ivf-navy); color: white; }
+
+        #admin-panel { position: absolute; inset: 0; background: white; z-index: 100; display: none; flex-direction: column; padding: 20px; }
+        .input-area { padding: 14px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+        .input-row { display: flex; gap: 8px; }
+        input { flex: 1; padding: 12px; border: 2px solid #cbd5e1; border-radius: 12px; outline: none; font-size: 15px; }
+        #send-btn { background: var(--ivf-navy); color: white; padding: 0 16px; border-radius: 12px; cursor: pointer; }
+        #typing { display: none; padding: 4px 20px; font-size: 11px; color: var(--ivf-navy); font-weight: 600; }
+        
+        #password-modal { position: absolute; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">
+        <div class="header-content" id="admin-trigger">
+            <svg class="logo-svg" viewBox="0 0 100 100">
+                <path d="M50 10 A40 40 0 1 1 20 25" fill="none" stroke="#D4AF37" stroke-width="6" stroke-linecap="round"/>
+                <circle cx="40" cy="48" r="9" fill="#22c55e"/>
+                <circle cx="60" cy="48" r="9" fill="#22c55e"/>
+                <path d="M42 68 A10 10 0 0 0 58 68" fill="none" stroke="#D4AF37" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+            <h1 class="text-base font-bold tracking-tight">IVF-Spain Expert</h1>
+        </div>
+        <select id="lang-select" class="lang-select">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="zh">中文</option>
+            <option value="uk">Українська</option>
+            <option value="ru" selected>Русский</option>
+            <option value="mo">Română (MD)</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="it">Italiano</option>
+            <option value="pt">Português</option>
+            <option value="ar">العربية</option>
+            <option value="ja">日本語</option>
+        </select>
+    </div>
+
+    <div id="admin-panel">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold">Admin: Knowledge Matrix</h2>
+            <button id="admin-close" class="text-2xl">✕</button>
+        </div>
+        <textarea id="kb-editor" class="flex-1 w-full p-4 border rounded-xl text-xs mb-4 font-mono" placeholder="Вставьте сюда текст и ссылки из Google Дока..."></textarea>
+        <button id="admin-save" class="bg-blue-900 text-white py-3 rounded-xl font-bold">SAVE TO CLOUD</button>
+    </div>
+
+    <div id="password-modal">
+        <div class="bg-white p-6 rounded-3xl w-64 shadow-2xl text-center border">
+            <h3 class="font-bold mb-4 text-sm text-slate-800">Security Check</h3>
+            <input type="password" id="admin-pass-input" class="w-full p-3 border rounded-xl mb-4 text-center text-sm" placeholder="Password">
+            <button id="admin-login-btn" class="w-full bg-blue-900 text-white py-2 rounded-xl mb-2 text-sm">Login</button>
+            <button id="admin-cancel-btn" class="w-full text-gray-500 text-xs font-semibold">Cancel</button>
+        </div>
+    </div>
+
+    <div id="messages-area" class="messages-area"></div>
+    <div id="typing">Дженни анализирует...</div>
+
+    <div class="input-area">
+        <div class="input-row">
+            <input type="text" id="user-input" placeholder="Введите ваш вопрос..." autocomplete="off">
+            <button id="send-btn">➤</button>
+        </div>
+        <div id="voice-hint" class="voice-hint mt-2 text-center text-gray-400 text-[9px]">Используйте микрофон на клавиатуре телефона</div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const apiKey = ""; 
+    const ADMIN_PASS = "1324";
+    let currentLang = 'ru';
+    let currentKnowledgeBase = "";
+    let user = null;
+
+    let firebaseConfig = {};
+    try { if (typeof __firebase_config !== 'undefined') firebaseConfig = JSON.parse(__firebase_config); } catch (e) {}
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'ivf-expert-2026-v2';
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const uiStrings = {
+        en: { placeholder: "Your question...", voiceHint: "Use keyboard mic", welcome: "Hello. I am Jenny. Do you plan your first attempt or have experience?\n\nSUGGESTIONS: [First IVF attempt], [Previous failures], [Why Spain?], [Costs]" },
+        uk: { placeholder: "Ваше питання...", voiceHint: "Мікрофон на клавіатурі", welcome: "Добрий день. Я Дженни. Ви плануєте першу спробу чи мали досвід?\n\nSUGGESTIONS: [Перша спроба], [Були невдачі], [Чому Іспанія?], [Вартість]" },
+        ru: { placeholder: "Введите ваш вопрос...", voiceHint: "Микрофон на клавиатуре", welcome: "Здравствуйте. Я Дженни, ваш независимый эксперт по технологиям IVF-Spain. Вы планируете первую попытку ЭКО или у вас уже был опыт?\n\nSUGGESTIONS: [Первая попытка ЭКО], [Были неудачи], [Почему Испания?], [Узнать стоимость]" },
+        mo: { placeholder: "Întrebarea ta...", voiceHint: "Microfon tastatură", welcome: "Bună. Sunt Jenny. Planificați prima încercare sau aveți experiență?\n\nSUGGESTIONS: [Prima încercare], [Eșecuri], [De ce Spania?], [Costuri]" },
+        es: { placeholder: "Pregunta...", voiceHint: "Usa el micrófono", welcome: "Hola. Soy Jenny. ¿Primer intento de FIV или опыт?\n\nSUGGESTIONS: [Primer intento], [Fallos anteriores], [¿Por qué España?], [Costes]" },
+        zh: { placeholder: "问题...", voiceHint: "麦克风", welcome: "你好. 我是珍妮. 这是您的第一次尝试吗？\n\nSUGGESTIONS: [第一次尝试], [失败经历], [为什么选择西班牙？], [费用]" },
+        fr: { placeholder: "Question...", voiceHint: "Microphone", welcome: "Bonjour. Je suis Jenny. Première fois?\n\nSUGGESTIONS: [Première fois], [Échecs], [Pourquoi l'Espagne?], [Coûts]" },
+        de: { placeholder: "Frage...", voiceHint: "Mikroфон", welcome: "Hallo. Ich bin Jenny. Erster Versuch?\n\nSUGGESTIONS: [Erster Versuch], [Misserfolge], [Warum Spanien?], [Preise]" },
+        it: { placeholder: "Domanda...", voiceHint: "Microfono", welcome: "Buongiorno. Sono Jenny. Primo tentativo?\n\nSUGGESTIONS: [Primo tentativo], [Fallimenti], [Perché la Spagna?], [Costi]" },
+        pt: { placeholder: "Pergunta...", voiceHint: "Microfone", welcome: "Olá. Sou Jenny. Primeira tentativa?\n\nSUGGESTIONS: [Primeira tentativa], [Falhas], [Por que a Espanha?], [Preços]" },
+        ar: { placeholder: "سؤالك...", voiceHint: "ميكروفون", welcome: "مرحباً. أنا جيني.\n\nSUGGESTIONS: [المحاولة الأولى], [فشل سابق], [لماذا إسبانيا؟], [التكاليف]" },
+        ja: { placeholder: "質問...", voiceHint: "マイク", welcome: "こんにちは。ジェニーです.\n\nSUGGESTIONS: [初めて], [失敗経験], [なぜスペイン？], [費用]" }
+    };
+
+    window.setLanguage = (lang) => {
+        currentLang = uiStrings[lang] ? lang : 'en';
+        const s = uiStrings[currentLang];
+        document.getElementById('user-input').placeholder = s.placeholder;
+        document.getElementById('voice-hint').innerText = s.voiceHint;
+        document.getElementById('messages-area').innerHTML = '';
+        addMessage(s.welcome);
+    };
+
+    function linkify(text) {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        return text.replace(urlRegex, (url) => {
+            const clean = url.replace(/[.,!?]$/, '');
+            return `<a href="${clean}" target="_blank" rel="noopener noreferrer">${clean}</a>`;
+        });
+    }
+
+    function extractYTInfo(text) {
+        const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
+        let results = []; let m;
+        while ((m = regex.exec(text)) !== null) {
+            results.push({ full: m[0].replace(/[.,!?]$/, ''), id: m[1] });
+        }
+        return results;
+    }
+
+    function addMessage(text, isUser = false) {
+        const area = document.getElementById('messages-area');
+        const oldSuggs = document.getElementById('suggestions-container');
+        if (oldSuggs) oldSuggs.remove();
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${isUser ? 'message-user' : 'message-bot shadow-sm'}`;
+        
+        let displayBody = text;
+        let ytInfo = [];
+        let suggests = [];
+
+        if (!isUser) {
+            ytInfo = extractYTInfo(text);
+            const matchSugg = text.match(/SUGGESTIONS: (.*)/);
+            if (matchSugg) {
+                suggests = [...matchSugg[1].matchAll(/\[(.*?)\]/g)].map(m => m[1]);
+                displayBody = text.replace(/SUGGESTIONS: .*/, '');
+            }
+        }
+
+        // 1. Рендерим основной текст
+        const textContainer = document.createElement('div');
+        textContainer.innerHTML = linkify(displayBody).replace(/\n/g, '<br>');
+        msgDiv.appendChild(textContainer);
+        
+        // 2. Рендерим видео-блок в самом конце, если есть ссылки
+        if (!isUser && ytInfo.length > 0) {
+            const videoBlock = document.createElement('div');
+            videoBlock.className = 'video-attachments';
+            
+            const seenIds = new Set();
+            ytInfo.forEach(info => {
+                if (seenIds.has(info.id)) return;
+                seenIds.add(info.id);
+                
+                const card = document.createElement('div');
+                card.className = 'yt-card';
+                card.innerHTML = `
+                    <div class="yt-thumb" style="background-image:url('https://img.youtube.com/vi/${info.id}/hqdefault.jpg')">
+                        <div class="play-btn">▶</div>
+                    </div>
+                    <div class="yt-label">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="red"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.377.505 9.377.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                        Посмотреть видео-материал
+                    </div>
+                `;
+                card.onclick = () => window.open(info.full.startsWith('http') ? info.full : 'https://' + info.full, '_blank');
+                videoBlock.appendChild(card);
+            });
+            msgDiv.appendChild(videoBlock);
+        }
+
+        area.appendChild(msgDiv);
+
+        if (suggests.length > 0) {
+            const suggDiv = document.createElement('div');
+            suggDiv.id = 'suggestions-container';
+            suggests.forEach(s => {
+                const btn = document.createElement('button');
+                btn.className = 'suggestion-btn';
+                btn.innerText = s;
+                btn.onclick = () => { document.getElementById('user-input').value = s; handleSend(); };
+                suggDiv.appendChild(btn);
+            });
+            area.appendChild(suggDiv);
+        }
+
+        if (isUser) {
+            area.scrollTop = area.scrollHeight;
+        } else {
+            const lastUserMsg = msgDiv.previousSibling;
+            if (lastUserMsg && lastUserMsg.classList && lastUserMsg.classList.contains('message-user')) {
+                lastUserMsg.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                msgDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    }
+
+    async function handleSend() {
+        const input = document.getElementById('user-input');
+        const val = input.value.trim();
+        if (!val) return;
+        
+        addMessage(val, true);
+        input.value = '';
+        document.getElementById('typing').style.display = 'block';
+        
+        try {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const prompt = `Ты — Дженни, независимый эксперт по технологиям IVF-Spain.
+            ПРАВИЛА ОФОРМЛЕНИЯ ОТВЕТА:
+            1. ПИШИ ЧИСТЫМ ТЕКСТОМ. Не вставляй ссылки YouTube в середину предложений.
+            2. Все ссылки YouTube перечисляй строго в самом конце ответа, после основного вывода.
+            3. Используй ТОЛЬКО информацию и YouTube ссылки из своей Базы Знаний ниже.
+            4. Если ссылка в базе имеет тайминг (&t=...), сохрани его.
+            5. КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО выдумывать свои ссылки.
+            6. Тон: Профессиональный, медицинский, без лишних эмоций.
+            БАЗА ЗНАНИЙ ДЛЯ РАБОТЫ:
+            ${currentKnowledgeBase}
+            ФОРМАТ: В самом конце добавь 4 кнопки SUGGESTIONS: [Текст1], [Текст2], [Текст3], [Текст4]. Язык: ${currentLang}.`;
+            
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt + "\n\nВопрос: " + val }] }], tools: [{ "google_search": {} }] })
+            });
+            const data = await res.json();
+            const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Ошибка анализа данных.";
+            document.getElementById('typing').style.display = 'none';
+            addMessage(reply);
+        } catch (e) {
+            document.getElementById('typing').style.display = 'none';
+            addMessage("Служба временно недоступна.");
+        }
+    }
+
+    // Handlers
+    document.getElementById('lang-select').onchange = (e) => window.setLanguage(e.target.value);
+    document.getElementById('send-btn').onclick = handleSend;
+    document.getElementById('user-input').onkeypress = (e) => e.key === 'Enter' && handleSend();
+    
+    document.getElementById('admin-trigger').ondblclick = () => document.getElementById('password-modal').style.display = 'flex';
+    document.getElementById('admin-cancel-btn').onclick = () => document.getElementById('password-modal').style.display = 'none';
+    document.getElementById('admin-login-btn').onclick = () => {
+        if (document.getElementById('admin-pass-input').value === ADMIN_PASS) {
+            document.getElementById('password-modal').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'flex';
+        }
+    };
+    document.getElementById('admin-close').onclick = () => document.getElementById('admin-panel').style.display = 'none';
+    document.getElementById('admin-save').onclick = async () => {
+        if (!user) return;
+        const text = document.getElementById('kb-editor').value;
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'knowledgeBase', 'content'), { text });
+        document.getElementById('admin-panel').style.display = 'none';
+    };
+
+    (async () => {
+        try {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
+            else await signInAnonymously(auth);
+            
+            onAuthStateChanged(auth, (u) => {
+                user = u;
+                if (user) {
+                    onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'knowledgeBase', 'content'), (snap) => {
+                        if (snap.exists()) {
+                            currentKnowledgeBase = snap.data().text;
+                            document.getElementById('kb-editor').value = currentKnowledgeBase;
+                        }
+                    });
+                }
+            });
+        } catch (e) {}
+    })();
+
+    window.onload = () => window.setLanguage('ru');
+</script>
+</body>
+</html>
