@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
-<head>
+<html lang="ru"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IVF-Spain Expert</title>
@@ -127,7 +126,7 @@
         #password-modal { position: absolute; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: none; align-items: center; justify-content: center; }
         .error-box { background: #fee2e2; border: 1px solid #ef4444; color: #991b1b; padding: 12px; border-radius: 10px; font-size: 13px; margin-top: 10px; }
     </style>
-</head>
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&amp;subset=cyrillic" rel="stylesheet" id="wt-sky-css--725574360"></head>
 <body>
 
 <div class="chat-container">
@@ -136,10 +135,10 @@
     <div class="chat-header">
         <div id="admin-trigger" class="header-left cursor-pointer select-none">
             <svg class="logo-svg" viewBox="0 0 100 100">
-                <path d="M50 10 A40 40 0 1 1 20 25" fill="none" stroke="#D4AF37" stroke-width="6" stroke-linecap="round"/>
-                <circle cx="40" cy="48" r="9" fill="#22c55e"/>
-                <circle cx="60" cy="48" r="9" fill="#22c55e"/>
-                <path d="M42 68 A10 10 0 0 0 58 68" fill="none" stroke="#D4AF37" stroke-width="4" stroke-linecap="round"/>
+                <path d="M50 10 A40 40 0 1 1 20 25" fill="none" stroke="#D4AF37" stroke-width="6" stroke-linecap="round"></path>
+                <circle cx="40" cy="48" r="9" fill="#22c55e"></circle>
+                <circle cx="60" cy="48" r="9" fill="#22c55e"></circle>
+                <path d="M42 68 A10 10 0 0 0 58 68" fill="none" stroke="#D4AF37" stroke-width="4" stroke-linecap="round"></path>
             </svg>
             <span class="font-bold text-sm">IVF-Spain Expert</span>
         </div>
@@ -163,7 +162,7 @@
     </div>
 
     <!-- АДМИН ПАНЕЛЬ (Скрыта по умолчанию) -->
-    <div id="admin-panel">
+    <div id="admin-panel" style="display: none;">
         <div class="flex justify-between items-center mb-4">
             <h2 class="font-bold text-ivf-navy">База Знаний (Локальная)</h2>
             <button class="text-xl" onclick="document.getElementById('admin-panel').style.display='none'">✕</button>
@@ -172,12 +171,12 @@
         <button id="gen-code-btn" class="bg-blue-900 text-white py-3 rounded-xl font-bold mb-2">ПОЛУЧИТЬ НОВЫЙ КОД ДЛЯ GITHUB</button>
         <div id="code-output-container" class="hidden flex-1 flex flex-col">
             <p class="text-[10px] text-red-600 font-bold mb-1 uppercase">Скопируйте текст ниже и замените код на GitHub:</p>
-            <textarea id="code-output" class="flex-1 w-full p-2 border bg-gray-50 rounded text-[9px] font-mono" readonly onclick="this.select()"></textarea>
+            <textarea id="code-output" class="flex-1 w-full p-2 border bg-gray-50 rounded text-[9px] font-mono" readonly="" onclick="this.select()"></textarea>
         </div>
     </div>
 
     <!-- ОКНО ПАРОЛЯ (Скрыто по умолчанию) -->
-    <div id="password-modal">
+    <div id="password-modal" style="display: none;">
         <div class="bg-white p-6 rounded-3xl w-64 text-center shadow-2xl">
             <h3 class="text-sm font-bold mb-4">Доступ для администратора</h3>
             <input type="password" id="admin-pass-input" class="w-full p-3 border rounded-xl mb-4 text-center" placeholder="****">
@@ -192,12 +191,12 @@
     <div id="messages-area" class="messages-area"></div>
     
     <!-- ИНДИКАТОР ВВОДА -->
-    <div id="typing">Дженни обрабатывает данные...</div>
+    <div id="typing" style="display: none;">Дженни обрабатывает данные...</div>
 
     <!-- ПОЛЕ ВВОДА ВОПРОСА -->
     <div class="input-area">
         <div class="input-row">
-            <input type="text" id="user-input" placeholder="Введите ваш вопрос..." autocomplete="off">
+            <input type="text" id="user-input" placeholder="Your question..." autocomplete="off">
             <button id="send-btn">➤</button>
         </div>
     </div>
@@ -208,14 +207,14 @@
     // ======================================================================
     // 1. ЗАЩИТА КЛЮЧА
     // ======================================================================
-    var keyPart1 = "AIzaSyBVxEYoymGh40_E"; 
-    var keyPart2 = "TYm3a8jQ9GSGk9LAs_o";
+    var keyPart1 = "AIzaSyDTJRTkoU-B5zA"; 
+    var keyPart2 = "jvbFwYeEZQyevTbBeTzo";
     var apiKey = keyPart1 + keyPart2;
     
     // ======================================================================
     // 2. БАЗА ЗНАНИЙ
     // ======================================================================
-    var knowledgeBase = "Клиника IVF-Spain является ведущим европейским центром репродуктивной медицины. Специализация: сложные случаи ЭКО, донорство яйцеклеток, генетическая диагностика. Испания является лидером в области ЭКО благодаря передовому законодательству. Официальный сайт: https://www.ivf-spain.com/en/. Официальный YouTube-канал: https://www.youtube.com/@IVFLife. Видео Medicare 2026: https://www.youtube.com/watch?v=22";
+    var knowledgeBase = "https://www.ivf-spain.com/en/ https://www.youtube.com/@IVFLife";
     // ======================================================================
 
     var currentLang = 'en';
@@ -483,5 +482,6 @@
 
     window.onload = function() { window.setLanguage('en'); };
 </script>
-</body>
-</html>
+
+
+<div id="wt-sky-root"></div></body></html>
